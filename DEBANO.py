@@ -5,9 +5,9 @@ from copy import *
 from threading import *
 from random import *
 from Queue import *
-fileina = open('workfilea', 'w')
-fileinb= open('workfileb', 'w')
-indexi = 0
+from scipy.misc.common import *
+
+filein = open('workfile', 'w')
 fval = 1 
 m = 30  #  nombre des sous-var x(x0,..xi)
 class qbit:
@@ -22,8 +22,8 @@ class qbit:
             return (1)
         else:
             return (0)
-    def qgate( self,n,N , i, ii):
-        angle = self.CalculAngle(n,N, i, ii)
+    def qgate( self,n,N ):
+        angle = self.CalculAngle(n,N)
         #print angle
         e = 0.0001
         a_1 = cos(angle)* self.a - sin(angle) * self.b
@@ -49,18 +49,18 @@ class qbit:
     def binomial( self,x,N ,p,q):
 	b1 = pow(p,x)
 	b2 = pow(q,N-x)
-	c = self.Combinaison(N,x)
+	c = comb(N,x)
         b =  c * b1 * b2
         return b
-    def CalculAngle(self,n,N, i, ii):
+    def CalculAngle(self,n,N):
         b = self.binomial(n,N,pow(self.a,2),pow(self.b,2))
+        if ( N == 0 ):
+            b = self.b
+        else:
+            print n, N
+            b = n/N;
         Angle = atan(sqrt(b)/sqrt(1-b))-atan(self.a/self.b)
-        if ( i == 0 ) and ( ii == 0):
-            #print "oui"
-            #print Angle
-            fileina.write(str(indexi)+"\t"+str(self.a)+'\n')
-            indexi = indexi + 1
-            #fileinb.write(str(self.b)+'\n')            
+        #filein.write(str(Angle)+'\n')
         return Angle
     
             
@@ -92,11 +92,11 @@ class qoctet(qbit):
 			i = i+1
 		return (self.result)
 
-    def Update( self , T ,N, ii):
+    def Update( self , T ,N):
         i = 0
         while i < self.Nbits :
             n = T[i]
-            self.octet[i].qgate( n,N , i, ii)
+            self.octet[i].qgate( n,N )
             i = i + 1
     
             
@@ -239,7 +239,7 @@ class QMOO(QGA):
         self.ListCodedNonDominated =[]# copy(queueCodeN)
         self.ListDominated = copy(queueD)
         self.lockList.release()
-        while i < 20:   #????
+        while i < 100:   #????
                 self.RealisableSpace( Population )
                 j = len(self.X)-1
                 self.Dominate(queueD,j);
@@ -291,7 +291,7 @@ class QMOO(QGA):
                     j = j + 1    
                 i = i + 1 #ziide eckteb
             if N != 0:
-                Pop[index].Update(Tx,N, index)
+                Pop[index].Update(Tx,N)
         
 class Qthread( QMOO):
     def __init__( self  , Nthreads , Contrainte, FonctionObject , Ngen , Nbits):
@@ -452,7 +452,6 @@ FonctionObject06.append('lambda x:(1+9*pow(sum(x[1:])/(m-1),0.25))*(1-pow( ( 1-e
 
 #    Qthread( Nthreads , Contrainte, FonctionObject , Ngen , Nbits)
 #m = 10  sur fnct 6
-
 qm = Qthread( 1      ,Contrainte03 , FonctionObject03 ,10,  60)   # changer la valeur de m
 qm.RunThreads()
 
