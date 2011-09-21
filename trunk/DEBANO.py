@@ -53,12 +53,14 @@ class qbit:
         b =  c * b1 * b2
         return b
     def CalculAngle(self,n,N):
-        b = self.binomial(n,N,pow(self.a,2),pow(self.b,2))
+#        b = self.binomial(n,N,pow(self.a,2),pow(self.b,2))
         if ( N == 0 ):
             b = self.b
         else:
             print n, N
             b = n/N;
+        b = n/N
+        print 'b',b
         Angle = atan(sqrt(b)/sqrt(1-b))-atan(self.a/self.b)
         #filein.write(str(Angle)+'\n')
         return Angle
@@ -239,7 +241,7 @@ class QMOO(QGA):
         self.ListCodedNonDominated =[]# copy(queueCodeN)
         self.ListDominated = copy(queueD)
         self.lockList.release()
-        while i < 100:   #????
+        while i < 100:   #???? nombre des individu apres observation
                 self.RealisableSpace( Population )
                 j = len(self.X)-1
                 self.Dominate(queueD,j);
@@ -273,6 +275,7 @@ class QMOO(QGA):
 
     def Interferate( self, ListC , Pop ):
         N = len(ListC)
+        N = N*1.0
         JJ = 0
         for index in range(m):
             JJ = 0
@@ -286,7 +289,7 @@ class QMOO(QGA):
                 j = 0
                 while j < self.Nbits:
                     if ListC[i][index][j] == '1':
-                        Tx[j] = Tx[j] + 1
+                        Tx[j] = Tx[j] + 1.0
                         #print 'j',j
                     j = j + 1    
                 i = i + 1 #ziide eckteb
@@ -452,6 +455,6 @@ FonctionObject06.append('lambda x:(1+9*pow(sum(x[1:])/(m-1),0.25))*(1-pow( ( 1-e
 
 #    Qthread( Nthreads , Contrainte, FonctionObject , Ngen , Nbits)
 #m = 10  sur fnct 6
-qm = Qthread( 1      ,Contrainte03 , FonctionObject03 ,10,  60)   # changer la valeur de m
+qm = Qthread( 1      ,Contrainte03 , FonctionObject03 ,100,  60)   # changer la valeur de m
 qm.RunThreads()
 
