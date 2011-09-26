@@ -42,7 +42,7 @@ qoctet = []
 for i in range(30):
     qoctet.append([0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5])
     
-bestp = copy(qoctet)
+bestp = deepcopy(qoctet)
 octet1 = []
 for i in range(30):
     octet1.append([0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0])
@@ -61,12 +61,12 @@ for Ind_gen in range(500):
         X_x = []
         for i_x in range(30):
             for i in range(Tbit):
-                octet1[i_x][i] =str( observe(qoctet[i_x][i])) # j'ai change sa qoctet par bestp
-            float_ele = int("".join(octet1[i_x][10:]),2)* 1.0 / pow(10,6)
-            int_ele = int("".join(octet1[i_x][1:9]),2)    
+                octet1[i_x][i] =str( observe(qoctet[i_x][i])) # bien concevoir les contraintes
+            float_ele = int("".join(octet1[i_x][1:]),2)* 1.0 / pow(10,6)
+            int_ele = int("".join(octet1[i_x][:1]),2)    
             float_ele = float_ele + int_ele
             b = 0
-            i = 3
+            i = 1
             j = 1
             while i < Tbit:
                 b = b + int(octet1[i_x][i])*pow(2,(j)*-1)     # conversion
@@ -75,12 +75,13 @@ for Ind_gen in range(500):
             float_ele = b + int_ele;
             if ( octet1[i_x][0] == '1' ):
                 float_ele = float_ele*1.0
-            #print float_ele
             X_x.append(float_ele)
 ##        if ( float_ele <= 100 ) and (float_ele  >= -100 ): # contrainte
-        if X_x not in X:
-            pop.append(copy(octet1))
-            X.append(X_x)
+       ## if X_x not in X:
+        tmpoctet = []
+        tmpoctet = deepcopy(octet1)
+        pop.append(tmpoctet) # il y a un problem au niveau de lecture
+        X.append(X_x)
     for i in range(len(X)):
         if ( i not in Dominated) :
             for j in range(len(X)):
@@ -93,27 +94,25 @@ for Ind_gen in range(500):
         if i not in Dominated:
             NonDominated.append(i)
     for i in range(len(NonDominated)):
-        New_pop.append(copy(pop[NonDominated[i]]))
+        New_pop.append(deepcopy(pop[NonDominated[i]]))
     if ( MaxN < len(NonDominated) ): # c'est mieux de sauvgarder les meilleurs non la quantity
         Reuse = 0
         MaxN = len(NonDominated)
-        bestp = copy(qoctet)
+        bestp = deepcopy(qoctet)
     else:
         Reuse = Reuse + 1
     tt = zip(*New_pop) ##transposer des ind nondominated
     for i_x in range(m):
         ti = zip(*tt[i_x])
-##        if ( Ind_gen ==0 ):
-##            print "dans la boucle",ti , i_x
+        if ( Ind_gen ==0 ):
+            print ti
         for i in range(len(ti)):
-            if ( Ind_gen ==0 ):
-                print ti[i]
             qoctet[i_x][i] = (int(ti[i].count('1'))*1.0/len(NonDominated))*1.0 # il faut recalculer qoctet
             if ( Ind_gen ==0 ):
                 print qoctet[i_x][i], len(tt),len(ti)
     if ( Reuse >= 50 ):
             Reuse = 0
-            qoctet = copy(bestp)
+            qoctet = deepcopy(bestp)
     fileprob.write(str(Ind_gen)+'\t'+str(qoctet[10])+'\n')
     fileN.write(str(Ind_gen)+'\t'+str(len(NonDominated))+'\n')
     filen.write(str(Ind_gen)+'\t'+str(tt[10].count('1'))+'\n')
@@ -164,7 +163,7 @@ for ind in range(Tind):
     #print float_ele
     if ( float_ele <= 3 ) and (float_ele  >= -1 ):
         if float_ele not in X:
-            pop.append(copy(octet1))
+            pop.append(deepcopy(octet1))
             X.append(float_ele)
 for i in range(len(X)):
     for j in range(len(X)):

@@ -140,7 +140,7 @@ class QMOO(QGA):
             i = i +1   
         self.Population = []
         for i in range(m):
-            self.Population.append(copy(self.qga.Population))
+            self.Population.append(deepcopy(self.qga.Population))
 
         
     def Decode( self, x ):
@@ -192,15 +192,15 @@ class QMOO(QGA):
 				    CountJ = CountJ + 1                               
 			  k = k +1
 		if CountI == len( self.fonctionObject ):
-			  self.ListDominated.append(copy(self.X[j]))
+			  self.ListDominated.append(deepcopy(self.X[j]))
 			  self.lockList.acquire()
-			  queueD.append(copy(self.X[j]))
+			  queueD.append(deepcopy(self.X[j]))
 			  self.lockList.release()
 		if CountJ == len( self.fonctionObject ):
 			  self.lockList.acquire()
-			  queueD.append(copy(self.X[i]))
+			  queueD.append(deepcopy(self.X[i]))
 			  self.lockList.release()
-			  self.ListDominated.append(copy(self.X[i]))
+			  self.ListDominated.append(deepcopy(self.X[i]))
             j = j + 1
 
     def RealisableSpace( self ,Population ):
@@ -214,9 +214,9 @@ class QMOO(QGA):
        # X_ij = Population[0].observe()
         for i in range(m):
             Population[i].observe()
-            Xdecoded = (self.Decode(copy(Population[i].RString)))
+            Xdecoded = (self.Decode(deepcopy(Population[i].RString)))
             Y.append(Xdecoded )
-            Ystring.append( copy(Population[i].RString))
+            Ystring.append( deepcopy(Population[i].RString))
         if Y not in self.X and self.InContrainte(Y):
             self.X.append(Y)
             self.CodedX.append(Ystring)
@@ -238,8 +238,8 @@ class QMOO(QGA):
         self.X = []
         self.ListNonDominated = []
         self.lockList.acquire()
-        self.ListCodedNonDominated =[]# copy(queueCodeN)
-        self.ListDominated = copy(queueD)
+        self.ListCodedNonDominated =[]# deepcopy(queueCodeN)
+        self.ListDominated = deepcopy(queueD)
         self.lockList.release()
         while i < 100:   #???? nombre des individu apres observation
                 self.RealisableSpace( Population )
@@ -257,11 +257,11 @@ class QMOO(QGA):
         i = 0
         while i < len(self.X):
             if self.X[i] not in self.ListDominated:
-                self.ListNonDominated.append(copy(self.X[i]))
-                self.ListCodedNonDominated.append(copy(self.CodedX[i]))
+                self.ListNonDominated.append(deepcopy(self.X[i]))
+                self.ListCodedNonDominated.append(deepcopy(self.CodedX[i]))
                 self.lockList.acquire()
-                queueCodeN.append(copy(self.CodedX[i]))
-                queueN.append(copy(self.X[i]))                
+                queueCodeN.append(deepcopy(self.CodedX[i]))
+                queueN.append(deepcopy(self.X[i]))                
                 self.lockList.release()
             i = i +1
     
@@ -314,17 +314,17 @@ class Qthread( QMOO):
         i = 0
         while i < self.Nthreads :
             qm = QMOO( Contrainte , FonctionObject ,  Nbits)
-            self.Qlist.append(copy(qm))
+            self.Qlist.append(deepcopy(qm))
             i = i +1
         i = 0
         while i < self.Nthreads :
             thred = Thread(target = self.RunOnethread,args =() )
-            self.threads.append(copy(thred))
+            self.threads.append(deepcopy(thred))
             i = i+1
         i = 0
         while i < len( self.Qlist ):
             self.Qlist[i].Evaluate( self.dominated, self.CodeNondominated,self.Nondominated,1 ,self.Qlist[i].Population )
-            self.Qoom.put(copy(self.Qlist[i]))
+            self.Qoom.put(deepcopy(self.Qlist[i]))
             i = i+1
             
         
