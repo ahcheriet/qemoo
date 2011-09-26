@@ -8,7 +8,7 @@ Reuse = 0
 fileprob = open("prob.txt","w")            
 filen = open("probn.txt","w")            
 fileN = open("probN.txt","w")            
-
+m = 30
 
 def observe(p) :
     r = random()	
@@ -36,10 +36,17 @@ FonctionObject03 = []
 Contrainte03.append('lambda x: True')
 FonctionObject03.append('lambda x:x[0]')
 FonctionObject03.append('lambda x:(1+9*sum(map(lambda a:a/(m-1),x[1:]))*(1-sqrt(x[0]/(1+9*sum(map(lambda a:a/(m-1),x[1:]))))-(x[0]/(1+9*sum(map(lambda a:a/(m-1),x[1:]))))*sin(10*pi*x[0])))')
-
-qoctet = [0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5]
+fonction1 = eval(FonctionObject03[0])
+fonction2 = eval(FonctionObject03[1])
+qoctet = []
+for i in range(30):
+    qoctet.append([0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5])
+    
 bestp = copy(qoctet)
-octet1 = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+octet1 = []
+for i in range(30):
+    octet1.append([0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0])
+
 for Ind_gen in range(500):
     X = []
     x_array = []
@@ -49,58 +56,61 @@ for Ind_gen in range(500):
     NonDominated = []
     Tind = 100
     Tbit = 20
+    print "Je suis dans l'iteration ",Ind_gen
     for ind in range(Tind):
-        for i in range(Tbit):
-            octet1[i] =str( observe(qoctet[i])) # j'ai change sa qoctet par bestp
-        float_ele = int("".join(octet1[10:]),2)* 1.0 / pow(10,6)
-        int_ele = int("".join(octet1[1:9]),2)    
-        float_ele = float_ele + int_ele
-        b = 0
-        i = 3
-        j = 1
-        while i < len(octet1):
-            b = b + int(octet1[i])*pow(2,(j)*-1)     # conversion
-            i = i + 1
-            j = j + 1
-        float_ele = b + int_ele;
-        if ( octet1[0] == '1' ):
-            float_ele = float_ele*-1.0
-        #print float_ele
-        if ( float_ele <= 100 ) and (float_ele  >= -100 ): ## c'est été  -1 et 3
-            if float_ele not in X:
-                pop.append(copy(octet1))
-                X.append(float_ele)
+        X_x = []
+        for i_x in range(30):
+            for i in range(Tbit):
+                octet1[i_x][i] =str( observe(qoctet[i_x][i])) # j'ai change sa qoctet par bestp
+            float_ele = int("".join(octet1[i_x][10:]),2)* 1.0 / pow(10,6)
+            int_ele = int("".join(octet1[i_x][1:9]),2)    
+            float_ele = float_ele + int_ele
+            b = 0
+            i = 3
+            j = 1
+            while i < Tbit:
+                b = b + int(octet1[i_x][i])*pow(2,(j)*-1)     # conversion
+                i = i + 1
+                j = j + 1
+            float_ele = b + int_ele;
+            if ( octet1[i_x][0] == '1' ):
+                float_ele = float_ele*1.0
+            #print float_ele
+            X_x.append(float_ele)
+##        if ( float_ele <= 100 ) and (float_ele  >= -100 ): # contrainte
+        if X_x not in X:
+            pop.append(copy(octet1))
+            X.append(X_x)
     for i in range(len(X)):
-        for j in range(len(X)):
-            if i != j and (j not in Dominated) :
-                if ( pow(X[i],2) < pow(X[j],2) ) and ( pow(X[i]-2,2) < pow(X[j]-2,2) ):
-                    Dominated.append(j)
-                if ( pow(X[j],2) < pow(X[i],2) ) and ( pow(X[j]-2,2) < pow(X[i]-2,2) ):
-                    Dominated.append(i)
+        if ( i not in Dominated) :
+            for j in range(len(X)):
+                if i != j and (j not in Dominated) :
+                    if ( fonction1(X[i]) < fonction1(X[j]) ) and ( fonction2(X[i]) < fonction2(X[j]) ): # fonction objective
+                        Dominated.append(j)
+                    if ( fonction1(X[j]) < fonction1(X[i]) ) and ( fonction2(X[j]) < fonction2(X[i]) ): 
+                        Dominated.append(i)
     for i in range(len(X)):
         if i not in Dominated:
             NonDominated.append(i)
     for i in range(len(NonDominated)):
         New_pop.append(copy(pop[NonDominated[i]]))
-    tt = zip(*New_pop) ##transposer des ind nondominated
-##    fileData = open("donnee"+str(Ind_gen)+".txt","w")            
-##    i = 0
-##    while i < len( X ):
-##        fonction1 = pow(X[i],2)
-##        fonction2 = pow(X[i]-2,2)
-##        fileData.write(str(fonction1)+'\t'+str(fonction2)+'\n')
-##        i = i +1
-##    fileData.close()            
-
-    ## new value of qoctet
-    if ( MaxN < len(NonDominated) ):
+    if ( MaxN < len(NonDominated) ): # c'est mieux de sauvgarder les meilleurs non la quantity
         Reuse = 0
         MaxN = len(NonDominated)
         bestp = copy(qoctet)
     else:
         Reuse = Reuse + 1
-    for i in range(len(tt)):
-        qoctet[i] = (int(tt[i].count('1'))*1.0/len(NonDominated))*1.0
+    tt = zip(*New_pop) ##transposer des ind nondominated
+    for i_x in range(m):
+        ti = zip(*tt[i_x])
+##        if ( Ind_gen ==0 ):
+##            print "dans la boucle",ti , i_x
+        for i in range(len(ti)):
+            if ( Ind_gen ==0 ):
+                print ti[i]
+            qoctet[i_x][i] = (int(ti[i].count('1'))*1.0/len(NonDominated))*1.0 # il faut recalculer qoctet
+            if ( Ind_gen ==0 ):
+                print qoctet[i_x][i], len(tt),len(ti)
     if ( Reuse >= 50 ):
             Reuse = 0
             qoctet = copy(bestp)
