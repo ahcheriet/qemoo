@@ -314,17 +314,17 @@ class Qthread( QMOO):
         i = 0
         while i < self.Nthreads :
             qm = QMOO( Contrainte , FonctionObject ,  Nbits)
-            self.Qlist.append(deepcopy(qm))
+            self.Qlist.append(copy(qm))
             i = i +1
         i = 0
         while i < self.Nthreads :
             thred = Thread(target = self.RunOnethread,args =() )
-            self.threads.append(deepcopy(thred))
+            self.threads.append(copy(thred))
             i = i+1
         i = 0
         while i < len( self.Qlist ):
             self.Qlist[i].Evaluate( self.dominated, self.CodeNondominated,self.Nondominated,1 ,self.Qlist[i].Population )
-            self.Qoom.put(deepcopy(self.Qlist[i]))
+            self.Qoom.put(copy(self.Qlist[i]))
             i = i+1
             
         
