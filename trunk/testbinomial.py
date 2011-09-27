@@ -9,6 +9,8 @@ fileprob = open("prob.txt","w")
 filen = open("probn.txt","w")            
 fileN = open("probN.txt","w")            
 m = 30
+Tind = 50
+Tbit = 60
 
 def observe(p) :
     r = random()	
@@ -39,13 +41,20 @@ FonctionObject03.append('lambda x:(1+9*sum(map(lambda a:a/(m-1),x[1:]))*(1-sqrt(
 fonction1 = eval(FonctionObject03[0])
 fonction2 = eval(FonctionObject03[1])
 qoctet = []
-for i in range(30):
-    qoctet.append([0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5])
+for i in range(m):
+    o = []
+    for j in range(Tbit):
+        o.append(0.5)
+    qoctet.append(deepcopy(o))
     
 bestp = deepcopy(qoctet)
 octet1 = []
-for i in range(30):
-    octet1.append([0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0])
+for i in range(m):
+    o = []
+    for j in range(Tbit):
+        o.append(0)
+    octet1.append(o)
+
 
 for Ind_gen in range(50):
     X = []
@@ -54,9 +63,7 @@ for Ind_gen in range(50):
     New_pop = []
     Dominated = []
     NonDominated = []
-    Tind = 50
-    Tbit = 20
-#    print "Je suis dans l'iteration ",Ind_gen
+    print "Je suis dans l'iteration ",Ind_gen
     for ind in range(Tind):
         X_x = []
         for i_x in range(30):
@@ -76,17 +83,16 @@ for Ind_gen in range(50):
             if ( octet1[i_x][0] == '1' ):
                 float_ele = float_ele*1.0
             X_x.append(float_ele)
-##        if ( float_ele <= 100 ) and (float_ele  >= -100 ): # contrainte
-       ## if X_x not in X:
         tmpoctet = []
         tmpoctet = deepcopy(octet1)
         pop.append(tmpoctet) # il y a un problem au niveau de lecture
+        print X_x[0]
         X.append(X_x)
     for i in range(len(X)):
         if ( i not in Dominated) :
             for j in range(len(X)):
                 if i != j and (j not in Dominated) :
-                    if ( fonction1(X[i]) < fonction1(X[j]) ) and ( fonction2(X[i]) < fonction2(X[j]) ): # fonction objective
+                    if ( fonction1(X[i]) <= fonction1(X[j]) ) and ( fonction2(X[i]) <= fonction2(X[j]) ): # fonction objective
                         Dominated.append(j)
                     if ( fonction1(X[j]) < fonction1(X[i]) ) and ( fonction2(X[j]) < fonction2(X[i]) ): 
                         Dominated.append(i)
@@ -133,16 +139,50 @@ while i < len( X ):
 Dominated = []
 NonDominated = []
 Tind = 1000
-Tbit = 20
+print "I am in second phase"
+for ind in range(Tind):
+    X_x = []
+    for i_x in range(30):
+        for i in range(Tbit):
+            octet1[i_x][i] =str( observe(qoctet[i_x][i])) # bien concevoir les contraintes
+        float_ele = int("".join(octet1[i_x][1:]),2)* 1.0 / pow(10,6)
+        int_ele = int("".join(octet1[i_x][:1]),2)    
+        float_ele = float_ele + int_ele
+        b = 0
+        i = 1
+        j = 1
+        while i < Tbit:
+            b = b + int(octet1[i_x][i])*pow(2,(j)*-1)     # conversion
+            i = i + 1
+            j = j + 1
+        float_ele = b + int_ele;
+        if ( octet1[i_x][0] == '1' ):
+            float_ele = float_ele*1.0
+        X_x.append(float_ele)
+    tmpoctet = []
+    tmpoctet = deepcopy(octet1)
+    pop.append(tmpoctet) # il y a un problem au niveau de lecture
+    X.append(X_x)
+for i in range(len(X)):
+    if ( i not in Dominated) :
+        for j in range(len(X)):
+            if i != j and (j not in Dominated) :
+                if ( fonction1(X[i]) <= fonction1(X[j]) ) and ( fonction2(X[i]) <= fonction2(X[j]) ): # fonction objective
+                    Dominated.append(j)
+                if ( fonction1(X[j]) < fonction1(X[i]) ) and ( fonction2(X[j]) < fonction2(X[i]) ): 
+                    Dominated.append(i)
+for i in range(len(X)):
+    if i not in Dominated:
+        NonDominated.append(i)
 
 
     
 fileData2 = open("meilleur2.txt","w")            
 i = 0
 while i < len( NonDominated ):
-    fonction1 = pow(X[NonDominated[i]],2)
-    fonction2 = pow(X[NonDominated[i]]-2,2)
-    fileData2.write(str(fonction1)+'\t'+str(fonction2)+'\n')
+    fonctionv1 = fonction1(X[i])
+    fonctionv2 = fonction2(X[i])
+    fileData2.write(str(fonctionv1)+'\t'+str(fonctionv2)+'\n')
     i = i +1
 fileData2.close()            
 
