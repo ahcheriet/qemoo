@@ -1,0 +1,1 @@
+I try in this project to implement my methode wich is a quantum inspired evolutionary for the Multi-objective optimisation
